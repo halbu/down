@@ -1,5 +1,5 @@
 # down
-javascript platform game
+javascript platform game. [play here](https://rawgit.com/halbu/down/master/index.html)
 
 ![example gif](https://github.com/halbu/down/blob/master/down.gif "amazing gameplay")
 
