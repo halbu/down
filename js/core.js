@@ -6,25 +6,22 @@ var DOWN = {
     debug: false,
     depth: 0,
     enemies: [],
-    FRAME_MS: 16.66,
     KB: [],
     KP: '',
-    mapgrid: [],
+    mapGrid: [],
     mouse: { x: 0, y: 0 },
-    offset: 0,
-    PLAYAREA_X: 29,
-    PLAYAREA_Y: 20,
+    yOffset: 0,
     preroll: 0,
-    rowcount: 7, // TODO: not the most descriptive name
+    rowcount: Constants.MapChunkHeight - 1, // TODO: not the most descriptive name
 };
 
 DOWN.init = function(options) {
     setInterval(function() {
         DOWN.tick();
-    }, DOWN.FRAME_MS);
+    }, Constants.MillisecondsPerFrame);
     
-    DOWN.cnv.width = 696;
-    DOWN.cnv.height = 480;
+    DOWN.cnv.width = Constants.Canvas.Width;
+    DOWN.cnv.height = Constants.Canvas.Height;
 
     DOWN.am = new AssetManager();
     DOWN.am.loadSprites([
@@ -69,14 +66,10 @@ DOWN.tick = function() {
     DOWN.ctx.fillStyle = Constants.Colors.Darkest;
     DOWN.ctx.fillRect(0, 0, DOWN.cnv.width, DOWN.cnv.height);
 
-    DOWN.mapgrid.forEach(x => x.forEach(y => y.draw()));
-
-    this.enemies.forEach(e => {
-        e.act();
-    });
-
-    // remove enemies that request their own deletion
-    this.enemies = this.enemies.filter(e => { return !e.deleteMe; });
+    DOWN.mapGrid.forEach(x => x.forEach(y => y.draw()));
+    
+    this.enemies.forEach(e => { e.act(); });
+    this.enemies = this.enemies.filter(e => { return !e.deleteMe; }); // remove enemies that request their own deletion
 
     this.enemies.forEach(e => {
         e.draw();
@@ -90,49 +83,36 @@ DOWN.tick = function() {
     DOWN.player.update();
     DOWN.player.draw();
 
+    DOWN.advanceGameState();
+
+    if (DOWN.yOffset === Constants.BlockSize && DOWN.player.state === 'ALIVE') {
+        DOWN.rowcount++;
+        DOWN.depth++;
+        
+        this.updateGrid();
+
+        if (DOWN.rowcount === Constants.MapChunkHeight) {
+            DOWN.rowcount = 0;
+            DOWN.addFourNewBlocksFromPresets();
+        }
+
+        DOWN.yOffset = 0;
+    }
+
+    this.drawOnscreenText();
+
+    DOWN.KP = ''; // reset key pressed this frame
+};
+
+DOWN.advanceGameState = function() {
     if (DOWN.player.state === 'ALIVE') {
         if (DOWN.preroll > Constants.PauseFramesAtGameStart) {
-            DOWN.offset++;
+            DOWN.yOffset++;
         } else {
             DOWN.preroll++;
         }
     } else {
         DOWN.deathMessagePreroll = Math.min(Constants.PauseFramesBeforeDeathMessage, ++DOWN.deathMessagePreroll);
-    }
-    
-    DOWN.KP = '';
-
-    if (DOWN.offset === Constants.BlockSize && DOWN.player.state === 'ALIVE') {
-        DOWN.rowcount++;
-        
-        this.updateGrid();
-
-        if (DOWN.rowcount === 8) {
-            DOWN.rowcount = 0;
-            DOWN.addFourNewBlocksFromPresets();
-        }
-
-        DOWN.offset = 0;
-        DOWN.depth++;
-    }
-
-    this.drawBorderedText('DEPTH: ' + DOWN.depth + 'ft', 10, 20, {px: 13, bgColor: Constants.Colors.Darkest});
-    
-    if (DOWN.player.state === 'DEAD' &&
-        DOWN.deathMessagePreroll === Constants.PauseFramesBeforeDeathMessage)
-    {
-        this.drawBorderedText('DEAD', null, Constants.DeathMessageYPosition, {px: 48, centre: true});
-        this.drawBorderedText('FROM ' + DOWN.player.causeOfDeath, null, Constants.DeathMessageYPosition + 35, {px: 24, centre: true});
-        this.drawBorderedText('F5 TO TRY AGAIN', null, Constants.DeathMessageYPosition + 65, {px: 14, centre: true});
-    }
-
-    if (DOWN.debug) {
-        this.drawBorderedText('PLAYER X: ' + DOWN.player.x, 425, 20, {});
-        this.drawBorderedText('PLAYER Y: ' + DOWN.player.y, 425, 35, {});
-        this.drawBorderedText('OFFSET: ' + DOWN.offset, 425, 50, {});
-        this.drawBorderedText('ENEMIES.LENGTH: ' + DOWN.enemies.length, 425, 65, {});
-        this.drawBorderedText('MAP HEIGHT: ' + DOWN.mapgrid.length, 425, 80, {});
-        this.drawBorderedText('ROWCOUNT: ' + DOWN.rowcount, 425, 95, {});
     }
 };
 
@@ -154,12 +134,12 @@ DOWN.overlapMoreThanJustATinyBitInTheYDirection = function(a, b) {
 DOWN.updateGrid = function() {
 
     // discard the uppermost row of the map
-    DOWN.mapgrid.splice(0, 1);
+    DOWN.mapGrid.splice(0, 1);
 
     // shift everything (tiles, enemies, player) up by the size of one block
-    for (var j=0; j!=DOWN.mapgrid.length; ++j) {
-        for (var i=0; i!=DOWN.PLAYAREA_X; ++i) {
-            var thing = DOWN.mapgrid[j][i];
+    for (var j=0; j!=DOWN.mapGrid.length; ++j) {
+        for (var i=0; i!=Constants.PlayArea.Width; ++i) {
+            var thing = DOWN.mapGrid[j][i];
             thing.y -= Constants.BlockSize;
         }
     }
@@ -168,24 +148,22 @@ DOWN.updateGrid = function() {
     this.enemies.forEach(e => { e.y -= Constants.BlockSize; });
 
     // remove enemies that have gone off the top of the play area
-    this.enemies = this.enemies.filter(e => { return e.y > -16; });
+    this.enemies = this.enemies.filter(e => { return e.y > -Constants.BlockSize; });
 };
 
 DOWN.clamp = function(val, lo, hi) {
     return Math.min(hi, Math.max(lo, val));
 };
 
-// ok yes this draws  the string to the canvas like 25 times but using strokeText() doesnt give as nice a border
+// OK yes this draws the string to the canvas like 25 times but using strokeText() doesn't give as nice a border
 DOWN.drawBorderedText = function(str, x, y, opts) {
     var px =        opts.px ? opts.px : 12;
     var centre =    opts.centre ? opts.centre : false;
     var bgColor =   opts.bgColor ? opts.bgColor : Constants.Colors.Darkest;
-
-    var step = Constants.TextBorderPixels;
-    var tx = (centre) ? DOWN.cnv.width/2 : x;
+    var tx =        (centre) ? DOWN.cnv.width/2 : x;
+    var step =      Constants.TextBorderPixels;
 
     if (centre) DOWN.ctx.textAlign = 'center';
-
     DOWN.ctx.font = '' + px + 'px "Press Start 2P"';
 
     DOWN.ctx.fillStyle = bgColor;
@@ -200,7 +178,28 @@ DOWN.drawBorderedText = function(str, x, y, opts) {
 };
 
 DOWN.drawWorldSprite = function(str, x, y) {
-    DOWN.ctx.drawImage(DOWN.am.getSprite(str), x, y - DOWN.offset);
+    DOWN.ctx.drawImage(DOWN.am.getSprite(str), x, y - DOWN.yOffset);
+};
+
+DOWN.drawOnscreenText = function() {
+    this.drawBorderedText('DEPTH: ' + DOWN.depth + 'ft', 10, 20, {px: 13, bgColor: Constants.Colors.Darkest});
+        
+    if (DOWN.player.state === 'DEAD' &&
+        DOWN.deathMessagePreroll === Constants.PauseFramesBeforeDeathMessage)
+    {
+        this.drawBorderedText('DEAD', null, Constants.DeathMessageYPosition, {px: 48, centre: true});
+        this.drawBorderedText('FROM ' + DOWN.player.causeOfDeath, null, Constants.DeathMessageYPosition + 35, {px: 24, centre: true});
+        this.drawBorderedText('F5 TO TRY AGAIN', null, Constants.DeathMessageYPosition + 65, {px: 14, centre: true});
+    }
+
+    if (DOWN.debug) {
+        this.drawBorderedText('PLAYER X: ' + DOWN.player.x, 425, 20, {});
+        this.drawBorderedText('PLAYER Y: ' + DOWN.player.y, 425, 35, {});
+        this.drawBorderedText('yOffset: ' + DOWN.yOffset, 425, 50, {});
+        this.drawBorderedText('ENEMIES.LENGTH: ' + DOWN.enemies.length, 425, 65, {});
+        this.drawBorderedText('MAP HEIGHT: ' + DOWN.mapGrid.length, 425, 80, {});
+        this.drawBorderedText('ROWCOUNT: ' + DOWN.rowcount, 425, 95, {});
+    }
 };
 
 DOWN.getAngle = function(a, b) {
@@ -214,5 +213,5 @@ DOWN.getAngle = function(a, b) {
 
 DOWN.debugRect = function(obj, col) {
     DOWN.ctx.fillStyle = col;
-    DOWN.ctx.fillRect(obj.x, obj.y - DOWN.offset, obj.w, obj.h);
+    DOWN.ctx.fillRect(obj.x, obj.y - DOWN.yOffset, obj.w, obj.h);
 };

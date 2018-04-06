@@ -22,7 +22,7 @@ var falling_block_switch = function(x, y) {
         var pos = gy;
 
         while(pos >=0 && !foundTrapBlock) {
-            if (DOWN.mapgrid[pos][gx].t === 1) {
+            if (DOWN.mapGrid[pos][gx].t === 1) {
                 foundTrapBlock = true;
             } else pos--;
         }
@@ -32,7 +32,7 @@ var falling_block_switch = function(x, y) {
         this.deleteMe = true;
 
         for (var y = gy; y >= pos; --y) {
-            DOWN.mapgrid[y][gx] = new block(gx * Constants.BlockSize, y * Constants.BlockSize, 0);
+            DOWN.mapGrid[y][gx] = new block(gx * Constants.BlockSize, y * Constants.BlockSize, 0);
         }
 
         DOWN.enemies.push(new falling_block(gx * Constants.BlockSize, pos * Constants.BlockSize));

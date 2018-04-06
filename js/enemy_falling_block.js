@@ -26,7 +26,7 @@ var falling_block = function(x, y) {
                 var gx = this.getMyGridPosition().x;
                 var gy = this.getMyGridPosition().y;
 
-                DOWN.mapgrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 1);
+                DOWN.mapGrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 1);
             }
         }
 
@@ -38,10 +38,10 @@ var falling_block = function(x, y) {
 
     this.getMyHitbox = function() {
         return {
-            x: this.x + Constants.BlockSize/4,
-            y: this.y + 3 * Constants.BlockSize/4,
-            w: this.w - Constants.BlockSize/2,
-            h: Constants.BlockSize/4
+            x: this.x + Constants.BlockSize / 4,
+            y: this.y + 3 * Constants.BlockSize / 4,
+            w: this.w - Constants.BlockSize / 2,
+            h: Constants.BlockSize / 4
         };
     };
 };

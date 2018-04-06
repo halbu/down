@@ -5,8 +5,8 @@ var worldobject = function(x, y) {
 
     this.getMyGridPosition = function() {
         return {
-            x: DOWN.clamp(Math.floor(this.x / Constants.BlockSize), 0, DOWN.PLAYAREA_X),
-            y: DOWN.clamp(Math.floor(this.y / Constants.BlockSize), 0, DOWN.mapgrid.length)
+            x: DOWN.clamp(Math.floor(this.x / Constants.BlockSize), 0, Constants.PlayArea.Width),
+            y: DOWN.clamp(Math.floor(this.y / Constants.BlockSize), 0, DOWN.mapGrid.length)
         };
     };
 
@@ -17,10 +17,10 @@ var worldobject = function(x, y) {
         DOWN.collisionTiles = [];
 
         for (var i = 0; i <= 1; ++i) for (var j = 0; j <= 1; ++j) {
-            if (DOWN.mapgrid[gy + j] === undefined) continue;
-            if (DOWN.mapgrid[gy + j][gx + i] === undefined) continue;
+            if (DOWN.mapGrid[gy + j] === undefined) continue;
+            if (DOWN.mapGrid[gy + j][gx + i] === undefined) continue;
             
-            DOWN.collisionTiles.push(DOWN.mapgrid[gy + j][gx + i]);
+            DOWN.collisionTiles.push(DOWN.mapGrid[gy + j][gx + i]);
         }
     };
 

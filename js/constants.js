@@ -3,9 +3,15 @@ var Constants = {
     DeathMessageYPosition: 235,
     FatalFallVelocity: 11,
     Gravity: 0.2,
+    MapChunkHeight: 8,
+    MillisecondsPerFrame: 16.66,
     PauseFramesAtGameStart: 90,
     PauseFramesBeforeDeathMessage: 80,
     TextBorderPixels: 3,
+    Canvas: {
+        Height:         480,
+        Width:          696,
+    },
     Colors: {
         Lightest:       '#9bbc0f',
         Light:          '#8bac0f',
@@ -13,6 +19,10 @@ var Constants = {
         Darkest:        '#0f380f',
         DebugRed:       '#ff0000',
         DebugMagenta:   '#ff00ff',
+    },
+    PlayArea: {
+        Width:          29,
+        Height:         20,
     },
     TileTypes: {
         Nothing:                        0,

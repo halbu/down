@@ -13,11 +13,11 @@ DOWN.addStartArea = function() {
 
 DOWN.addFourNewBlocksFromPresets = function() {
     
-    var newRows = [DOWN.PLAYAREA_X];
+    var newRows = [Constants.PlayArea.Width];
 
     for (var j=0; j!=8; ++j) {
         newRows[j] = [];
-        for (var i=0; i!=DOWN.PLAYAREA_X; ++i) {
+        for (var i=0; i!=Constants.PlayArea.Width; ++i) {
             newRows[j][i] = -1;
         }
     }
@@ -30,11 +30,13 @@ DOWN.addFourNewBlocksFromPresets = function() {
             if (newRows[j][i + xOffset] !== 0) { // Don't overwrite open space with walls
                 newRows[j][i + xOffset] = randomChunk[j][i];
             }
-            if ((i + xOffset)===0 || (i + xOffset)===DOWN.PLAYAREA_X-1) newRows[j][i + xOffset] = 1; // Ensure edges always solid
+            if ((i + xOffset)===0 || (i + xOffset)===Constants.PlayArea.Width-1) {
+                newRows[j][i + xOffset] = 1; // Ensure edges always solid
+            } 
         }
     }
 
-    DOWN.arrayToWorldObjects(newRows, DOWN.mapgrid.length);
+    DOWN.arrayToWorldObjects(newRows, DOWN.mapGrid.length);
 };
 
 // Convert 2d array of ints to appropriately positioned block and enemy objects
@@ -42,14 +44,14 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
 
     // add arr.length new arrays to the tile map
     for (var j=0; j!=arr.length; ++j) {
-        DOWN.mapgrid[j + yOffset] = [];
+        DOWN.mapGrid[j + yOffset] = [];
     }
 
-    // add appropriate blocks to the mapgrid and enemies to the enemy array
-    for (var i=0; i!=DOWN.PLAYAREA_X; ++i) {
+    // add appropriate blocks to the mapGrid and enemies to the enemy array
+    for (var i=0; i!=Constants.PlayArea.Width; ++i) {
         for (var j=0; j!=arr.length; ++j) {
 
-            var gy = j+yOffset;
+            var gy = j + yOffset;
             var gx = i;
 
             var x = gx * Constants.BlockSize;
@@ -59,9 +61,9 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
 
             // Block types
             if (blockType <= 5) { // this is a bit clumsy
-                DOWN.mapgrid[gy][gx] = new block(x, y, blockType);
+                DOWN.mapGrid[gy][gx] = new block(x, y, blockType);
             } else if (blockType === Constants.TileTypes.CrumbleBlock) {
-                DOWN.mapgrid[gy][gx] = new crumble_block(x, y, blockType);
+                DOWN.mapGrid[gy][gx] = new crumble_block(x, y, blockType);
             }
 
             // Enemy types
@@ -70,7 +72,7 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
             } else if (blockType === Constants.TileTypes.EnemySpikes) {
                 this.enemies.push(new spike(x, y));
             } else if (blockType === Constants.TileTypes.BlockSpinner) {
-                DOWN.mapgrid[gy][gx] = new spinner_block(x, y, blockType);
+                DOWN.mapGrid[gy][gx] = new spinner_block(x, y, blockType);
             } else if (blockType === Constants.TileTypes.EnemyFallingBlockTrapSwitch) {
                 DOWN.createFallingBlockTrap(gx, gy);
             }
@@ -80,13 +82,13 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
 
 DOWN.createFallingBlockTrap = function(gx, gy) {
     
-    DOWN.mapgrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 0);
+    DOWN.mapGrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 0);
 
     var found = false;
     var pos = gy - 3;
 
     while(pos > 0 && Math.abs(gy - pos) < 8 && !found) {
-        if (DOWN.mapgrid[pos][gx].t === 1) {
+        if (DOWN.mapGrid[pos][gx].t === 1) {
             found = true;
         } else pos--;
     }
@@ -96,6 +98,6 @@ DOWN.createFallingBlockTrap = function(gx, gy) {
     DOWN.enemies.push(new falling_block_switch(gx * Constants.BlockSize, gy * Constants.BlockSize));
 
     for (var i=gy; i!=pos; --i) {
-        DOWN.mapgrid[i][gx] = new block(gx * Constants.BlockSize, i * Constants.BlockSize, Constants.TileTypes.BGChain);
+        DOWN.mapGrid[i][gx] = new block(gx * Constants.BlockSize, i * Constants.BlockSize, Constants.TileTypes.BGChain);
     }
 };
