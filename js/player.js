@@ -77,8 +77,8 @@ var player = function (x, y) {
         this.y += this.yv;
 
         // Treat the top of the play area as a solid ceiling
-        if (this.y - DOWN.offset < 0) {
-            this.y = DOWN.offset + 0.01;
+        if (this.y - DOWN.yOffset < 0) {
+            this.y = DOWN.yOffset + 0.01;
             this.yv = 1;
         }
 
@@ -106,7 +106,7 @@ var player = function (x, y) {
         }
 
         // Have we been squished against the roof while standing on a rising block?
-        if (this.y - DOWN.offset < 0) {
+        if (this.y - DOWN.yOffset < 0) {
             this.dieOf('CRUSHING');
         }
 
