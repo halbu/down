@@ -20,13 +20,13 @@ var player = function (x, y) {
         if (this.state === 'ALIVE') {
             if (DOWN.KB[87] && this.isGrounded) {
                 this.isGrounded = false;
-                this.yv += (this.jumpImpulse - this.yv)/3;
+                this.yv += (this.jumpImpulse - this.yv) / 4;
                 this.jumpBoostFrames = 0;
                 this.jumpState = 'BOOSTING';
             } else if (DOWN.KB[87] && this.jumpState === 'BOOSTING') {
                 this.jumpBoostFrames++;
-                this.yv += (this.jumpImpulse - this.yv)/3;
-                if (this.jumpBoostFrames === 6) {
+                this.yv += (this.jumpImpulse - this.yv) / 4;
+                if (this.jumpBoostFrames === 11) {
                     this.jumpBoostFrames = 0;
                     this.jumpState = 'NOJUMP';
                 }

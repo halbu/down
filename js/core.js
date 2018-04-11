@@ -91,11 +91,6 @@ DOWN.tick = function() {
         
         this.updateGrid();
 
-        if (DOWN.rowcount === Constants.MapChunkHeight) {
-            DOWN.rowcount = 0;
-            DOWN.addFourNewBlocksFromPresets();
-        }
-
         DOWN.yOffset = 0;
     }
 
@@ -132,9 +127,7 @@ DOWN.overlapMoreThanJustATinyBitInTheYDirection = function(a, b) {
 };
 
 DOWN.updateGrid = function() {
-
-    // discard the uppermost row of the map
-    DOWN.mapGrid.splice(0, 1);
+    DOWN.mapGrid.splice(0, 1); // discard the uppermost row of the map
 
     // shift everything (tiles, enemies, player) up by the size of one block
     for (var j=0; j!=DOWN.mapGrid.length; ++j) {
@@ -149,6 +142,11 @@ DOWN.updateGrid = function() {
 
     // remove enemies that have gone off the top of the play area
     this.enemies = this.enemies.filter(e => { return e.y > -Constants.BlockSize; });
+
+    if (DOWN.rowcount === Constants.MapChunkHeight) {
+        DOWN.rowcount = 0;
+        DOWN.addFourNewBlocksFromPresets();
+    }
 };
 
 DOWN.clamp = function(val, lo, hi) {
