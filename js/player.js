@@ -13,6 +13,7 @@ var player = function (x, y) {
     this.state = 'ALIVE';
     this.jumpState = 'NOJUMP';
     this.jumpBoostFrames = 0;
+    this.maxJumpBoostFrames = 10;
     this.causeOfDeath = '';
 
     this.act = function() {
@@ -26,7 +27,7 @@ var player = function (x, y) {
             } else if (DOWN.KB[87] && this.jumpState === 'BOOSTING') {
                 this.jumpBoostFrames++;
                 this.yv += (this.jumpImpulse - this.yv) / 4;
-                if (this.jumpBoostFrames === 11) {
+                if (this.jumpBoostFrames === this.maxJumpBoostFrames) {
                     this.jumpBoostFrames = 0;
                     this.jumpState = 'NOJUMP';
                 }
