@@ -31,9 +31,6 @@ var falling_block = function(x, y) {
         }
 
         this.setFacing();
-
-        this.flashTimer++;
-        if (this.flashTimer > this.flashInterval) this.flashTimer = 0;
     };
 
     this.getMyHitbox = function() {

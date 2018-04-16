@@ -66,7 +66,7 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
                 DOWN.mapGrid[gy][gx] = new crumble_block(x, y, blockType);
             }
 
-            // Enemy types
+            // Enemy and trap types
             if (blockType === Constants.TileTypes.EnemySkull) {
                 this.enemies.push(new skull(x, y));
             } else if (blockType === Constants.TileTypes.EnemySpikes) {
@@ -75,6 +75,9 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
                 DOWN.mapGrid[gy][gx] = new spinner_block(x, y, blockType);
             } else if (blockType === Constants.TileTypes.EnemyFallingBlockTrapSwitch) {
                 DOWN.createFallingBlockTrap(gx, gy);
+            } else if (blockType === Constants.TileTypes.EnemyArrowTrapSwitch) {
+                DOWN.mapGrid[gy][gx] = new block(x, y, 0);
+                DOWN.enemies.push(new arrow_switch(x, y));
             }
         }
     }
