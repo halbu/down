@@ -36,5 +36,7 @@ var Constants = {
         EnemyFallingBlockTrapSwitch:    8,
         BGChain:                        9,
         EnemyArrowTrapSwitch:           10,
+        EnemyArrowLauncherL:            11,
+        EnemyArrowLauncherR:            12,
     }
 };

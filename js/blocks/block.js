@@ -11,12 +11,14 @@ var block = function (x, y, t) {
         
         var spriteString = '';
         switch(t) {
-            case 1:     spriteString = 'block';             break;
-            case 2:     spriteString = 'bg_witheredtree';   break;
-            case 3:     spriteString = 'bg_rock';           break;
-            case 7:     spriteString = 'block_spinner';     break;
-            case 9:     spriteString = 'bg_chain';          break;
-            default:    spriteString = 'nothing';           break;
+            case 1:     spriteString = 'block';                     break;
+            case 2:     spriteString = 'bg_witheredtree';           break;
+            case 3:     spriteString = 'bg_rock';                   break;
+            case 7:     spriteString = 'block_spinner';             break;
+            case 9:     spriteString = 'bg_chain';                  break;
+            case 11:    spriteString = 'block_arrow_launcher_l';    break;
+            case 12:    spriteString = 'block_arrow_launcher_r';    break;
+            default:    spriteString = 'nothing';                   break;
         }
         
         if (spriteString !== 'nothing') {
