@@ -1,8 +1,8 @@
-var arrow = function(x, y) {
+var arrow = function(x, y, d) {
     enemy.call(this, x, y);
 
-    this.xv = 6.5;
-    this.facing = 'R';
+    this.facing = d;
+    this.xv = (this.facing === 'R') ? 6.5 : -6.5;
     
     this.killerName = 'ARROW TO KNEE (SORRY)';
 
@@ -34,7 +34,7 @@ var arrow = function(x, y) {
     };
 
     this.draw = function() {
-        var spriteStr = 'enemy_arrow_' + ((this.facing==='R') ? 'r' : 'l');
+        var spriteStr = 'enemy_arrow_' + ((this.facing === 'R') ? 'r' : 'l');
 
         DOWN.drawWorldSprite(spriteStr, this.x, this.y);
     };

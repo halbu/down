@@ -48,8 +48,15 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
     }
 
     // add appropriate blocks to the mapGrid and enemies to the enemy array
-    for (var i=0; i!=Constants.PlayArea.Width; ++i) {
-        for (var j=0; j!=arr.length; ++j) {
+    for (var j=0; j!=arr.length; ++j) {
+        /*
+         * Certain enemy traps can only be added once the complete row of blocks has been populated, as they 
+         * need to assess the state of the whole row in order to determine appropriate switch and trap placement.
+         * Adding them to this array means their creation will be deferred until the row is otherwise complete.
+         */
+        var do_later = [];
+
+        for (var i=0; i!=Constants.PlayArea.Width; ++i) {
 
             var gy = j + yOffset;
             var gx = i;
@@ -77,12 +84,19 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
                 DOWN.createFallingBlockTrap(gx, gy);
             } else if (blockType === Constants.TileTypes.EnemyArrowTrapSwitch) {
                 DOWN.mapGrid[gy][gx] = new block(x, y, 0);
-                DOWN.enemies.push(new arrow_switch(x, y));
+                do_later.push({gx: gx, gy: gy, d: Constants.TileTypes.EnemyArrowTrapSwitch});
             }
         }
+
+        do_later.forEach(i => {
+            if (i.d === Constants.TileTypes.EnemyArrowTrapSwitch) {
+                DOWN.enemies.push(new arrow_switch(i.gx * Constants.BlockSize, i.gy * Constants.BlockSize));
+            }
+        });
     }
 };
 
+// this shouldn't live here
 DOWN.createFallingBlockTrap = function(gx, gy) {
     
     DOWN.mapGrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 0);
