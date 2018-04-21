@@ -5,6 +5,29 @@ var falling_block_switch = function(x, y) {
     this.mySprite = 'enemy_switch';
     this.killerName = 'SOME WEIRD BUG??';
 
+    var gx = this.getMyGridPosition().x;
+    var gy = this.getMyGridPosition().y;
+
+    var foundFallBlock = false;
+    var pos = gy - 3;
+
+    while(pos > 0 && Math.abs(gy - pos) < 8 && !foundFallBlock) {
+        if (DOWN.mapGrid[pos][gx].t === 1) {
+            foundFallBlock = true;
+        } else pos--;
+    }
+
+    if (!foundFallBlock) {
+        this.deleteMe = true;
+        return;
+    }
+
+    for (var i=gy; i!=pos; --i) {
+        DOWN.mapGrid[i][gx] = new block(gx * Constants.BlockSize, i * Constants.BlockSize, Constants.TileTypes.BGChain);
+    }
+
+    var yOffset = gy - pos;
+
     this.getMyHitbox = function() {
         return {
             x: this.x + Constants.BlockSize / 4,
@@ -17,24 +40,17 @@ var falling_block_switch = function(x, y) {
     this.reactToTouch = function() {
         var gx = this.getMyGridPosition().x;
         var gy = this.getMyGridPosition().y;
+        var trapYPos = gy - yOffset;
 
-        var foundTrapBlock = false;
-        var pos = gy;
-
-        while(pos >=0 && !foundTrapBlock) {
-            if (DOWN.mapGrid[pos][gx].t === 1) {
-                foundTrapBlock = true;
-            } else pos--;
-        }
-
-        if (!foundTrapBlock) return;
-
+        // erase the switch
         this.deleteMe = true;
 
-        for (var y = gy; y >= pos; --y) {
+        // erase the background chain between switch and block, and the static block itself
+        for (var y = gy; y >= trapYPos; --y) {
             DOWN.mapGrid[y][gx] = new block(gx * Constants.BlockSize, y * Constants.BlockSize, 0);
         }
 
-        DOWN.enemies.push(new falling_block(gx * Constants.BlockSize, pos * Constants.BlockSize));
+        // add new active, falling block
+        DOWN.enemies.push(new falling_block(gx * Constants.BlockSize, trapYPos * Constants.BlockSize));
     };
 };

@@ -39,7 +39,7 @@ DOWN.addFourNewBlocksFromPresets = function() {
     DOWN.arrayToWorldObjects(newRows, DOWN.mapGrid.length);
 };
 
-// Convert 2d array of ints to appropriately positioned block and enemy objects
+// Convert 2d array of numbers to appropriately positioned block and enemy objects
 DOWN.arrayToWorldObjects = function(arr, yOffset) {
 
     // add arr.length new arrays to the tile map
@@ -81,7 +81,8 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
             } else if (blockType === Constants.TileTypes.BlockSpinner) {
                 DOWN.mapGrid[gy][gx] = new spinner_block(x, y, blockType);
             } else if (blockType === Constants.TileTypes.EnemyFallingBlockTrapSwitch) {
-                DOWN.createFallingBlockTrap(gx, gy);
+                DOWN.mapGrid[gy][gx] = new block(x, y, 0);
+                DOWN.enemies.push(new falling_block_switch(x, y));
             } else if (blockType === Constants.TileTypes.EnemyArrowTrapSwitch) {
                 DOWN.mapGrid[gy][gx] = new block(x, y, 0);
                 do_later.push({gx: gx, gy: gy, d: Constants.TileTypes.EnemyArrowTrapSwitch});
@@ -93,28 +94,5 @@ DOWN.arrayToWorldObjects = function(arr, yOffset) {
                 DOWN.enemies.push(new arrow_switch(i.gx * Constants.BlockSize, i.gy * Constants.BlockSize));
             }
         });
-    }
-};
-
-// this shouldn't live here
-DOWN.createFallingBlockTrap = function(gx, gy) {
-    
-    DOWN.mapGrid[gy][gx] = new block(gx * Constants.BlockSize, gy * Constants.BlockSize, 0);
-
-    var found = false;
-    var pos = gy - 3;
-
-    while(pos > 0 && Math.abs(gy - pos) < 8 && !found) {
-        if (DOWN.mapGrid[pos][gx].t === 1) {
-            found = true;
-        } else pos--;
-    }
-
-    if (!found) return;
-
-    DOWN.enemies.push(new falling_block_switch(gx * Constants.BlockSize, gy * Constants.BlockSize));
-
-    for (var i=gy; i!=pos; --i) {
-        DOWN.mapGrid[i][gx] = new block(gx * Constants.BlockSize, i * Constants.BlockSize, Constants.TileTypes.BGChain);
     }
 };
