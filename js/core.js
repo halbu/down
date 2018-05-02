@@ -13,13 +13,11 @@ var DOWN = {
     yOffset: 0,
     preroll: 0,
     rowcount: Constants.MapChunkHeight - 1, // TODO: not the most descriptive name
+    deltaTime: 0,
+    lastFrameTime: 0
 };
 
 DOWN.init = function(options) {
-    setInterval(function() {
-        DOWN.tick();
-    }, Constants.MillisecondsPerFrame);
-    
     DOWN.cnv.width = Constants.Canvas.Width;
     DOWN.cnv.height = Constants.Canvas.Height;
 
@@ -64,6 +62,9 @@ DOWN.init = function(options) {
     [1,2,3].forEach(i => { DOWN.addFourNewBlocksFromPresets(); });
 
     DOWN.player = new player(100, 100);
+
+    DOWN.lastFrame = performance.now();
+    window.requestAnimationFrame(DOWN.tick);
 };
 
 DOWN.tick = function() {
@@ -72,10 +73,10 @@ DOWN.tick = function() {
 
     DOWN.mapGrid.forEach(x => x.forEach(y => y.draw()));
     
-    this.enemies.forEach(e => { e.act(); });
-    this.enemies = this.enemies.filter(e => { return !e.deleteMe; }); // remove enemies that request their own deletion
+    DOWN.enemies.forEach(e => { e.act(); });
+    DOWN.enemies = DOWN.enemies.filter(e => { return !e.deleteMe; }); // remove enemies that request their own deletion
 
-    this.enemies.forEach(e => {
+    DOWN.enemies.forEach(e => {
         e.draw();
         if (DOWN.debug) e.drawDebugRects();
         if (DOWN.player.state === 'ALIVE' && e.isOverlappingPlayer()) {
@@ -93,14 +94,23 @@ DOWN.tick = function() {
         DOWN.rowcount++;
         DOWN.depth++;
         
-        this.updateGrid();
+        DOWN.updateGrid();
 
         DOWN.yOffset = 0;
     }
 
-    this.drawOnscreenText();
+    DOWN.drawOnscreenText();
 
     DOWN.KP = ''; // reset key pressed this frame
+
+    while (DOWN.deltaTime < Constants.MillisecondsPerFrame) {
+        DOWN.deltaTime = performance.now() - DOWN.lastFrameTime;
+    }
+
+    DOWN.deltaTime = 0;
+    DOWN.lastFrameTime = performance.now();
+
+    window.requestAnimationFrame(DOWN.tick);
 };
 
 DOWN.advanceGameState = function() {
