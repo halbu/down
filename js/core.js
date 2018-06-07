@@ -163,11 +163,7 @@ DOWN.updateGrid = function() {
     }
 };
 
-DOWN.clamp = function(val, lo, hi) {
-    return Math.min(hi, Math.max(lo, val));
-};
-
-// OK yes this draws the string to the canvas like 25 times but using strokeText() doesn't give as nice a border
+// Nicer bordered text implementation
 DOWN.drawBorderedText = function(str, x, y, opts) {
     var px =        opts.px ? opts.px : 12;
     var centre =    opts.centre ? opts.centre : false;
@@ -178,10 +174,9 @@ DOWN.drawBorderedText = function(str, x, y, opts) {
     if (centre) DOWN.ctx.textAlign = 'center';
     DOWN.ctx.font = '' + px + 'px "Press Start 2P"';
 
-    DOWN.ctx.fillStyle = bgColor;
-    for (var i=-step*2; i<=step*2; i+=step) for (var j=-step*2; j<=step*2; j+=step) {
-        DOWN.ctx.fillText(str, tx+i, y+j);
-    }
+    DOWN.ctx.lineWidth = 10;
+    DOWN.ctx.strokeStyle = bgColor;
+    DOWN.ctx.strokeText(str, tx, y);
     
     DOWN.ctx.fillStyle = Constants.Colors.Lightest;
     DOWN.ctx.fillText(str, tx, y);
@@ -215,12 +210,16 @@ DOWN.drawOnscreenText = function() {
 };
 
 DOWN.getAngle = function(a, b) {
-    var ca = { x : a.x + a.w/2, y : a.y + a.h / 2 };
-    var cb = { x : b.x + b.w/2, y : b.y + b.h / 2 };
+    var ca = { x : a.x + a.w / 2, y : a.y + a.h / 2 };
+    var cb = { x : b.x + b.w / 2, y : b.y + b.h / 2 };
     var dx = ca.x - cb.x;
     var dy = ca.y - cb.y;
     
     return Math.atan2(dy, dx);
+};
+
+DOWN.clamp = function(val, lo, hi) {
+    return Math.min(hi, Math.max(lo, val));
 };
 
 DOWN.debugRect = function(obj, col) {
